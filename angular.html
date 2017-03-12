@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<script type="text/javascript" src='https://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular.min.js'></script>
+	</head>
+	<body>
+		<div ng-app='mediyard' ng-controller='mediyard_controller'  ng-form="rowForm">
+			<h2>MediYard</h2>
+
+			<form ng-submit='toDo()'>
+				<input type="text" ng-model="medicine_name" placeholder="name of medicine" required> |
+				<!-- <input type="text" ng-model="after_or_before_meal" placeholder="after/before meal"> --> 
+				<select ng-model="after_or_before_meal" required>
+					<option value="After meal">After meal</option>
+					<option value="Before meal">Before meal</option>
+					<!-- <option value="None"></option> -->
+				</select> |
+				<input type="checkbox" ng-model="morning" value='Morning' ng-true-value="'1'" ng-false-value="'0'"> Morning
+				<input type="checkbox" ng-model="noon" value="Noon" ng-true-value="'1'" ng-false-value="'0'"> Noon
+				<input type="checkbox" ng-model="night" value="Night" ng-true-value="'1'" ng-false-value="'0'"> Night  |
+				<input type="input" ng-model="descrip" placeholder="descrip">
+				<input type="submit" value="Add New">
+			</form>
+
+			<br>
+			<table>
+				<tr ng-repeat='x in toDoList track by $index' ng-form='rowForm'>
+					<td title="'medicine_name'" filter="{medicine_name:'text'}" ng-switch="x.isEditing" ng-form='medicine_name'>
+						<span ng-switch-default>{{x.medicine_name}} || </span>
+						<div ng-switch-when="true">
+							<input type="text" name="medicine_name" ng-model='x.medicine_name' required="">
+						</div>
+					</td>
+					<td title="'after_or_before_meal'" ng-form='after_or_before_meal' ng-switch="x.isEditing">
+						<span  ng-switch-default>{{x.after_or_before_meal}} || </span>
+						<div ng-switch-when="true">
+							<select ng-model="x.after_or_before_meal" required>
+								<option value="After meal">After meal</option>
+								<option value="Before meal">Before meal</option>
+							<!-- <option value="None"></option> -->
+							</select>
+						</div>
+					</td>
+					<td title="'morning'" ng-form='morning' ng-switch="x.isEditing">
+						<span  ng-switch-default>{{x.morning}} - </span>
+						<div ng-switch-when="true">
+							<input type="checkbox" name="morning" ng-model='x.morning' ng-true-value="'1'" ng-false-value="'0'"> Morning 
+						</div>
+					</td>
+					<td title="'noon'" ng-form='noon' ng-switch="x.isEditing">
+						<span  ng-switch-default>{{x.noon}} - </span>
+						<div ng-switch-when="true">
+							<input type="checkbox" name="noon" ng-model='x.noon' ng-true-value="'1'" ng-false-value="'0'"> Noon
+						</div>
+					</td>
+					<td title="'night'" ng-form='night' ng-switch="x.isEditing">
+						<span  ng-switch-default>{{x.night}} || </span>
+						<div ng-switch-when="true">
+							<input type="checkbox" name="night" ng-model='x.night' ng-true-value="'1'" ng-false-value="'0'"> Night
+						</div>
+					</td>
+					<td title="'descrip'" ng-switch="x.isEditing" ng-form='descrip'>
+						<span ng-switch-default>{{x.descrip}}</span>
+						<div ng-switch-when="true">
+							<input type="text" name="descrip" ng-model='x.descrip'>
+						</div>
+					</td>
+					<td>
+						<button ng-click="save(x, rowForm)" ng-if="x.isEditing" ng-disabled="rowForm.$pristine || rowForm.$invalid">save</button>
+			            <button ng-click="cancel(x, rowForm)" ng-if="x.isEditing">Cancel</span></button>
+			            <button ng-click="x.isEditing = true" ng-if="!x.isEditing">Edit</span></button>
+			            <button ng-click="del($index)" ng-if="!x.isEditing" ng-model='x.isDelete'>Delete</button>
+					</td>
+				</tr>
+			</table>
+		</div>
+
+		<script type="text/javascript">
+			var app = angular.module('mediyard', []);
+			
+			app.controller('mediyard_controller', function($scope){
+				$scope.toDoList = [];
+				$scope.morning = '0';
+				$scope.noon = '0';
+				$scope.night = '0';
+
+				$scope.toDo = function(){
+					$scope.toDoList.push({'medicine_name':$scope.medicine_name, 'after_or_before_meal':$scope.after_or_before_meal, 'morning':$scope.morning, 'noon':$scope.noon, 'night':$scope.night, 'descrip':$scope.descrip});
+				};
+
+				$scope.del = function(index){
+					$scope.toDoList.splice(index, 1 );
+				};
+
+				$scope.cancel = function(x, rowForm){
+					var originalRow = resetRow(x, rowForm);
+     				 angular.extend(x, originalRow);
+				};
+
+				$scope.save = function(x, rowForm){
+					var originalRow = resetRow(x, rowForm);
+      				angular.extend(originalRow, x);
+				};
+				function resetRow(x, rowForm){
+				      x.isEditing = false;
+				      rowForm.$setPristine();
+				      return _.findWhere(originalData, function(r){
+				        return r.id === x.id;
+				      });
+    			}
+			});
+		</script>
+	</body>
+</html>
